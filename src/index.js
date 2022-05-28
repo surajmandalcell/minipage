@@ -134,52 +134,6 @@ const setupSettingsDialog = () => {
   })
 }
 
-const addShortcut = (title, url) => {
-  chrome.bookmarks.getSubTree('1', (tree) => {
-    let folder = tree[0].children.find(v => v.title.toLowerCase() === SHORTCUTS_FOLDER.toLowerCase())
-
-    if (folder) {
-      chrome.bookmarks.create({
-        title,
-        url,
-        parentId: folder.id
-      })
-      return
-    }
-
-    chrome.bookmarks.create({
-      title: SHORTCUTS_FOLDER,
-      parentId: '1'
-    }, () => {
-      let folder = tree[0].children.find(v => v.title.toLowerCase() === SHORTCUTS_FOLDER.toLowerCase())
-
-      chrome.bookmarks.create({
-        title,
-        url,
-        parentId: folder.id
-      })
-    })
-  })
-}
-
-const moveShortcut = (id, index) => {
-  chrome.bookmarks.getSubTree('1', (tree) => {
-    let folder = tree[0].children.find(v => v.title.toLowerCase() === SHORTCUTS_FOLDER.toLowerCase())
-
-    if (folder) {
-      chrome.bookmarks.move(id, {
-        parentId: folder.id,
-        index
-      })
-      return
-    }
-  })
-}
-
-const editShortcut = (id, title, url) => {
-  chrome.bookmarks.update(id, { title, url })
-}
-
 const addTZ = (name, timezone) => {
   const timezones = JSON.parse(localStorage.getItem('timezones')) || []
   
@@ -316,73 +270,11 @@ let syncedTabsHash = ''
 
 
 
-const loadBookmarks = () => {
-  chrome.bookmarks.getSubTree('1', (tree) => {
-    const folder = tree[0].children.find(v => v.title.toLowerCase() === SHORTCUTS_FOLDER.toLowerCase())
-
-    if (folder && folder.children.length > 0) {
-      $('.bookmarks-box').innerHTML = ''
-
-      for (let bookmark of folder.children) {
-        $('.bookmarks-box').appendChild(
-          el(
-            'a.shortcut',
-            bookmark.title,
-            {
-              href: bookmark.url,
-              title: bookmark.title,
-              click: (e) => {
-                if (e.metaKey === true || e.ctrlKey === true) return false
-                // update current tab location with bookmark.url
-                // in case a normal navigation event can't occur
-                // e.g. opening chrome:// links
-                chrome.tabs.getCurrent((tab) => {
-                  chrome.tabs.update(tab.id, { url: bookmark.url })
-                })
-              },
-              'data-id': bookmark.id,
-              'data-type': 'shortcut'
-            }
-          )
-        )
-      }
-    } else {
-      const box = $('.bookmarks-box')
-      box.innerHTML = ''
-
-      let message = el(
-        'span',
-        'You have no shortcuts.',
-        el(
-          'div.button.outlined',
-          'Add a shortcut',
-          {
-            click: () => {
-              shortcutPrompt('', '', 'add', ({ title, url }) => {
-                addShortcut(title, url)
-              })
-            }
-          }
-        )
-      )
-
-      box.appendChild(message)
-    }
-  })
-}
-
 refreshDate()
-loadBookmarks()
 setupSettingsDialog()
 
 // refresh the clock
 setInterval(refreshDate, 1000)
-
-// listen for Bookmarks events to update the view
-chrome.bookmarks.onChanged.addListener(loadBookmarks)
-chrome.bookmarks.onCreated.addListener(loadBookmarks)
-chrome.bookmarks.onRemoved.addListener(loadBookmarks)
-// chrome.bookmarks.onMoved.addListener(loadBookmarks)
 
 const menu = $('.menu')
 const body = $('body')
@@ -619,68 +511,6 @@ window.addEventListener('contextmenu', async e => {
     return (element, element.getAttribute) && element.getAttribute('data-type') === 'tz-clock' && element.getAttribute('data-id')
   })
 
-  const bookmarkActions = [
-    {
-      title: 'Open in new tab',
-      onClick: () => {
-        chrome.tabs.create({
-          url: shortcutTarget.href
-        })
-      }
-    },
-    {
-      title: 'Open in new window',
-      onClick: () => {
-        chrome.windows.create({
-          url: shortcutTarget.href
-        })
-      }
-    },
-    {
-      title: 'Open in incognito window',
-      onClick: () => {
-        chrome.windows.create({
-          url: shortcutTarget.href,
-          incognito: true
-        })
-      }
-    },
-    {
-      type: 'divider'
-    },
-    {
-      title: 'Edit',
-      onClick: () => {
-        shortcutPrompt(shortcutTarget.title, shortcutTarget.href, 'edit', ({ title, url}) => {
-          editShortcut(shortcutTarget.getAttribute('data-id'), title, url)
-        })
-      }
-    },
-    {
-      title: 'Copy URL',
-      onClick: () => {
-        navigator.clipboard.writeText(shortcutTarget.href)
-      }
-    },
-    {
-      title: 'Delete',
-      onClick: () => {
-        chrome.bookmarks.remove(shortcutTarget.getAttribute('data-id'))
-      }
-    },
-    {
-      type: 'divider'
-    },
-    {
-      title: 'Add shortcut',
-      onClick: () => {
-        shortcutPrompt('', '', 'add', ({ title, url }) => {
-          addShortcut(title, url)
-        })
-      }
-    }
-  ]
-
   const switcher = [
     {
       title: $('#editor-container').classList.contains('hidden') ? 'Enter writing mode' : 'Exit writing mode',
@@ -717,15 +547,6 @@ window.addEventListener('contextmenu', async e => {
     }
   ]
 
-  const addShortcutItem = {
-    title: 'Add shortcut',
-    onClick: () => {
-      shortcutPrompt('', '', 'add', ({ title, url }) => {
-        addShortcut(title, url)
-      })
-    }
-  }
-
   const addTimeZone = {
     title: 'Add time zone',
     onClick: () => {
@@ -737,7 +558,6 @@ window.addEventListener('contextmenu', async e => {
   }
 
   const customization = [
-    ($('#editor-container').classList.contains('hidden') ? addShortcutItem : false),
     ($('#editor-container').classList.contains('hidden') ? addTimeZone : false),
     {
       title: 'Change appearance',
@@ -780,9 +600,7 @@ window.addEventListener('contextmenu', async e => {
     }
   ]
 
-  if (shortcutTarget) {
-    buttons = buttons.concat(bookmarkActions)
-  } else if (tzTarget) {
+  if (tzTarget) {
     buttons = buttons.concat(
       {
         title: 'Edit',
@@ -833,14 +651,6 @@ window.addEventListener('contextmenu', async e => {
   if (e.target.getAttribute('data-context-menu') !== 'default') {
     e.preventDefault()
     return false
-  }
-})
-
-Sortable.create($('.bookmarks-box'), {
-  animation: 200,
-  dataIdAttr: 'data-sort-id',
-  onEnd: (ev) => {
-    moveShortcut(ev.item.getAttribute('data-id'), ev.oldIndex < ev.newIndex ? ev.newIndex + 1 : ev.newIndex)
   }
 })
 

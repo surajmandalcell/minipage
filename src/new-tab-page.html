@@ -26,25 +26,6 @@
   </div>
   <style id="custom-style"></style>
   <div class="overlay hidden">
-    <div id="shortcut-dialog" class="dialog hidden">
-      <div id="shortcut-dialog-title" class="dialog-title">Edit shortcut</div>
-      <div class="input-container">
-        <label for="shortcut-name-input">Name</label>
-        <input id="shortcut-name-input" placeholder='e.g. "Google", "Work Mail", etc.' type="text" autofocus
-          tabindex="1" aria-label="Name" data-context-menu="default">
-        <span id="shortcut-name-feedback"></span>
-      </div>
-      <div class="input-container">
-        <label for="shortcut-url-input">URL</label>
-        <input id="shortcut-url-input" placeholder='e.g. "https://example.com"' type="url" tabindex="2" aria-label="URL"
-          data-context-menu="default">
-        <span id="shortcut-url-feedback"></span>
-      </div>
-      <div class="button-group">
-        <button id="shortcut-cancel-button" class="button">Cancel</button>
-        <button id="shortcut-save-button" class="button primary">Save</button>
-      </div>
-    </div>
     <div id="tz-dialog" class="dialog hidden">
       <div id="tz-dialog-title" class="dialog-title">Add a time zone clock</div>
       <div class="input-container">
@@ -95,10 +76,6 @@
       </div>
       <div class="input-container-grid">
         <div class="input-container">
-          <input id="settings-devices-input" type="checkbox" />
-          <label class="inline" for="settings-devices-input">Show Remote Tabs</label>
-        </div>
-        <div class="input-container">
           <input id="settings-connection-input" type="checkbox" />
           <label class="inline" for="settings-connection-input">Show Connection Status</label>
         </div>
@@ -142,7 +119,6 @@
     </div>
   </div>
   <div class="layout">
-    <div class="bookmarks-box"></div>
     <div class="time-box">
       <span class="time"></span>
       <span class="date"></span>
@@ -150,9 +126,6 @@
       <span class="special-message hidden"></span>
     </div>
     <div id="tz-box"></div>
-    <div class="devices-box">
-      <div class="tabs"></div>
-    </div>
   </div>
 </body>
 

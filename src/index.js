@@ -35,7 +35,6 @@ const toggleEditor = () => {
 const setupSettingsDialog = () => {
   const modeInput = $('#settings-mode-input')
   const themeInput = $('#settings-theme-input')
-  const faviconsInput = $('#settings-favicons-input')
   const timeformatInput = $('#settings-timeformat-input')
   const batteryInput = $('#settings-battery-input')
   const connectionInput = $('#settings-connection-input')
@@ -45,12 +44,11 @@ const setupSettingsDialog = () => {
   // keyboard shortcut overrides
   const writingModeShortcutInput = $('#settings-writing-mode-shortcut-input')
 
-  store.get(['theme', 'mode', 'css', 'favicons', 'timeformat', 'battery', 'connection'], (settings) => {
+  store.get(['theme', 'mode', 'css', 'timeformat', 'battery', 'connection'], (settings) => {
     let preset = {
       mode: localStorage.getItem('mode') || 'system',
       theme: localStorage.getItem('theme') || 'smooth-dark',
       css: localStorage.getItem('css') || '',
-      favicons: localStorage.getItem('favicons') || 'hide',
       timeformat: localStorage.getItem('timeformat') || '12',
       battery: localStorage.getItem('battery') || 'show',
       connection: localStorage.getItem('connection') || 'show',
@@ -64,11 +62,6 @@ const setupSettingsDialog = () => {
 
     $('#settings-theme-input option').removeAttribute('selected')
     $(`#settings-theme-input option[value='${preset.theme}']`).setAttribute('selected', 'selected')
-
-    $('#settings-favicons-input').removeAttribute('checked')
-    if (preset.favicons === 'show') {
-      $(`#settings-favicons-input`).setAttribute('checked', 'checked')
-    }
 
     $('#settings-timeformat-input option').removeAttribute('selected')
     $(`#settings-timeformat-input option[value='${preset.timeformat}']`).setAttribute('selected', 'selected')
@@ -112,13 +105,6 @@ const setupSettingsDialog = () => {
     store.set({ css: ev.target.value }, () => {
       localStorage.setItem('css', ev.target.value)
       setCss(ev.target.value)
-    })
-  })
-
-  faviconsInput.addEventListener('change', (ev) => {
-    store.set({ favicons: ev.target.checked ? 'show' : 'hide' }, () => {
-      localStorage.setItem('favicons', ev.target.checked ? 'show' : 'hide')
-      setFavicons(ev.target.checked ? 'show' : 'hide')
     })
   })
 
@@ -341,19 +327,6 @@ const loadBookmarks = () => {
         $('.bookmarks-box').appendChild(
           el(
             'a.shortcut',
-            el(
-              'div.favicon',
-              el(
-                'img',
-                {
-                  src: `chrome://favicon/size/16@1x/${bookmark.url}`,
-                  srcset: `
-                    chrome://favicon/size/16@1x/${bookmark.url},
-                    chrome://favicon/size/16@2x/${bookmark.url} 2x
-                  `
-                }
-              )
-            ),
             bookmark.title,
             {
               href: bookmark.url,
@@ -367,7 +340,6 @@ const loadBookmarks = () => {
                   chrome.tabs.update(tab.id, { url: bookmark.url })
                 })
               },
-              'data-icon': bookmark.favicon,
               'data-id': bookmark.id,
               'data-type': 'shortcut'
             }

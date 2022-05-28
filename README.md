@@ -46,7 +46,7 @@ Drag-and-drop shortcuts to rearrange them. The order will be saved automatically
 
 #### Changing Minipage's Appearance
 
-Right-click the new tab page and click `Change appearance`. You will see a modal dialog where you can select your preferred mode (light or dark), theme, favicon, and advanced settings such as time format (12hr or 24hr), keyboard shortcuts, and custom CSS style.
+Right-click the new tab page and click `Change appearance`. You will see a modal dialog where you can select your preferred mode (light or dark), theme, and advanced settings such as time format (12hr or 24hr), keyboard shortcuts, and custom CSS style.
 
 #### Toggle Writing Mode On/Off
 

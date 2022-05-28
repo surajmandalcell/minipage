@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Minipage",
   "version": "1.0.0",
   "description": "Your personal minimal new tab page",
@@ -13,17 +13,12 @@
   "permissions": [
     "bookmarks",
     "storage",
-    "sessions",
-    "tabs",
-    "chrome://favicon/"
+    "tabs"
   ],
   "background": {
-    "scripts": [
-      "./src/background.js"
-    ],
-    "persistent": false
+    "service_worker": "./src/background.js"
   },
-  "browser_action": {
+  "action": {
     "default_title": "Minipage",
     "default_popup": "./src/popup.html"
   },

@@ -21,17 +21,6 @@
   <script src="./libraries/timezones.js"></script>
   <!-- libraries that depend on the DOM being loaded -->
   <script defer src="index.js"></script>
-  <div id="welcome-dialog" class="dialog corner hidden">
-    <div id="welcome-dialog-title" class="dialog-title">👋 Welcome to Minipage!</div>
-    <p class="dialog-body">Right-click the page or a shortcut to see contextual options to customize your new tab page
-      or toggle writing mode. </p>
-    <p class="dialog-body">If you like Minipage, don't forget to leave a review later!</p>
-    <div class="button-group no-margin">
-      <a id="welcome-help-button" class="button" target="_blank"
-        href="https://github.com/surajmandalcell/minipage/#usage-guide">Help</a>
-      <button id="welcome-done-button" class="button primary">Got It</button>
-    </div>
-  </div>
   <div id="editor-container" class="hidden">
     <div id="editor"></div>
   </div>
@@ -108,10 +97,6 @@
         <div class="input-container">
           <input id="settings-devices-input" type="checkbox" />
           <label class="inline" for="settings-devices-input">Show Remote Tabs</label>
-        </div>
-        <div class="input-container">
-          <input id="settings-favicons-input" type="checkbox" />
-          <label class="inline" for="settings-favicons-input">Show Favicons</label>
         </div>
         <div class="input-container">
           <input id="settings-connection-input" type="checkbox" />

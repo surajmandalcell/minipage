@@ -1,0 +1,11 @@
+{
+  "name": "minipage",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "serve src"
+  },
+  "repository": "https://github.com/surajmandalcell/minipage.git",
+  "author": "Suraj Mandal <surajmandalcell@gmail.com>",
+  "license": "MIT"
+}

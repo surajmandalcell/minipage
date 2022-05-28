@@ -8,7 +8,7 @@ Your personal minimal new tab page replacement for Google Chrome.
 
 ## Installing
 
-Minipage is only available for [Google Chrome](https://chrome.google.com) and [Brave](https://brave.com) on the [Chrome Webstore](https://chrome.google.com/webstore/detail/minipage/fanglmholkgdapjcfohfhnofcacjiodl) for now. 
+Minipage is only available for [Google Chrome](https://chrome.google.com) and [Brave](https://brave.com) on the [Chrome Webstore](https://chrome.google.com/webstore/detail/minipage/___insert_your_link) for now. 
 
 Do you want minipage to support other browser? [Let us know!](https://github.com/surajmandalcell/minipage/issues/new?assignees=&labels=platform+support&template=browser-support.md&title=)
 

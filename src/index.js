@@ -32,23 +32,6 @@ const toggleEditor = () => {
   }
 }
 
-const toggleWelcomeDialog = () => {
-  const dismissed = localStorage.getItem('welcome-dismissed')
-
-  if (!dismissed) {
-    setTimeout(() => {
-      $('#welcome-dialog').classList.remove('hidden')
-      $('#welcome-dialog').classList.add('animate')
-    }, 1000)
-  }
-
-  $('#welcome-done-button').addEventListener('click', () => {
-    $('#welcome-dialog').classList.add('hidden')
-    $('#welcome-dialog').classList.remove('animate')
-    localStorage.setItem('welcome-dismissed', Date.now())
-  })
-}
-
 const setupSettingsDialog = () => {
   const modeInput = $('#settings-mode-input')
   const themeInput = $('#settings-theme-input')
@@ -56,14 +39,13 @@ const setupSettingsDialog = () => {
   const timeformatInput = $('#settings-timeformat-input')
   const batteryInput = $('#settings-battery-input')
   const connectionInput = $('#settings-connection-input')
-  const devicesInput = $('#settings-devices-input')
   const cssTextarea = $('#settings-css-textarea')
   const doneButton = $('#settings-done-button')
 
   // keyboard shortcut overrides
   const writingModeShortcutInput = $('#settings-writing-mode-shortcut-input')
 
-  store.get(['theme', 'mode', 'css', 'favicons', 'timeformat', 'battery', 'connection', 'devices'], (settings) => {
+  store.get(['theme', 'mode', 'css', 'favicons', 'timeformat', 'battery', 'connection'], (settings) => {
     let preset = {
       mode: localStorage.getItem('mode') || 'system',
       theme: localStorage.getItem('theme') || 'smooth-dark',
@@ -72,7 +54,6 @@ const setupSettingsDialog = () => {
       timeformat: localStorage.getItem('timeformat') || '12',
       battery: localStorage.getItem('battery') || 'show',
       connection: localStorage.getItem('connection') || 'show',
-      devices: localStorage.getItem('devices') || 'show',
       writingModeShortcut: localStorage.getItem('writing-mode-shortcut') || (IS_MAC ? 'shift+command' : 'ctrl+shift'),
       ...settings
     }
@@ -100,11 +81,6 @@ const setupSettingsDialog = () => {
     $('#settings-connection-input').removeAttribute('checked')
     if (preset.connection === 'show') {
       $('#settings-connection-input').setAttribute('checked', 'checked')
-    }
-
-    $('#settings-devices-input').removeAttribute('checked')
-    if (preset.devices === 'show') {
-      $('#settings-devices-input').setAttribute('checked', 'checked')
     }
 
     $('#settings-writing-mode-shortcut-input').value = preset.writingModeShortcut
@@ -162,13 +138,6 @@ const setupSettingsDialog = () => {
   connectionInput.addEventListener('change', (ev) => {
     store.set({ connection: ev.target.checked ? 'show' : 'hide' }, () => {
       localStorage.setItem('connection', ev.target.checked ? 'show' : 'hide')
-    })
-  })
-
-  devicesInput.addEventListener('change', (ev) => {
-    store.set({ connection: ev.target.checked ? 'show' : 'hide' }, () => {
-      localStorage.setItem('devices', ev.target.checked ? 'show' : 'hide')
-      loadSyncedTabs()
     })
   })
 
@@ -359,83 +328,7 @@ const refreshDate = async () => {
 
 let syncedTabsHash = ''
 
-const loadSyncedTabs = () => {
-  const showTabs = !localStorage.getItem('devices') || localStorage.getItem('devices') && localStorage.getItem('devices') === 'show'
 
-  if (!showTabs) {
-    syncedTabsHash = ''
-    $('.devices-box .tabs').innerHTML = ''
-    return
-  }
-
-  chrome.sessions.getDevices((devices) => {
-    let tabs = devices.reduce((p, device) => {
-      return p.concat(
-        device.sessions.reduce(
-          (acc, session) => {
-            return acc.concat(
-              session.window.tabs.map(tab => ({ ...tab, deviceName: device.deviceName }))
-            )
-          },
-          []
-        )
-      )
-    }, []).filter(t => t.url !== 'chrome://newtab/')
-
-    let currentHash = tabs.reduce((prev, curr) => {
-      return prev += ':' + curr.url
-    }, '') || ''
-
-    // if something changed, re-render
-    if (currentHash !== syncedTabsHash && tabs.length > 0) {
-      let box = $('.devices-box .tabs')
-      box.innerHTML = ''
-
-      /* append icon */
-      let icon = el('div.icon', { click: loadSyncedTabs })
-      icon.innerHTML = iconSvg
-      box.appendChild(icon)
-
-      /* append (almost) every tab */
-      for (let tab of tabs) {
-        let element = el(
-          'div.link.truncate',
-          el(
-            'div.favicon',
-            el(
-              'img',
-              {
-                src: `chrome://favicon/size/16@1x/${tab.url}`,
-                srcset: `
-                  chrome://favicon/size/16@1x/${tab.url},
-                  chrome://favicon/size/16@2x/${tab.url} 2x
-                `
-              }
-            )
-          ),
-          tab.deviceName + ' › ' + tab.title,
-          {
-            href: '#',
-            title: tab.title,
-            'data-type': 'shortcut',
-            click: () => {
-              chrome.sessions.restore(tab.sessionId)
-            },
-            dragstart: (event) => {
-              event.dataTransfer.setData('text/plain', tab.url)
-            }
-          }
-        )
-
-        if (box.children.length < 5) {
-          box.appendChild(element)
-        }
-      }
-
-      syncedTabsHash = currentHash
-    }
-  })
-}
 
 const loadBookmarks = () => {
   chrome.bookmarks.getSubTree('1', (tree) => {
@@ -508,14 +401,10 @@ const loadBookmarks = () => {
 
 refreshDate()
 loadBookmarks()
-loadSyncedTabs()
 setupSettingsDialog()
 
 // refresh the clock
 setInterval(refreshDate, 1000)
-
-// periodically detect changes in synced tabs
-setInterval(loadSyncedTabs, 1000)
 
 // listen for Bookmarks events to update the view
 chrome.bookmarks.onChanged.addListener(loadBookmarks)
@@ -1028,7 +917,7 @@ const setKeyListener = () => {
   window.addEventListener('keydown', shortcutListener)
 }
 
-function handleEditorChange (ch) {
+function handleEditorChange (_ch) {
   localStorage.setItem('editor', JSON.stringify(quill.getContents()))
 }
 
@@ -1042,7 +931,6 @@ window.addEventListener('storage', (ev) => {
 localStorage.getItem('installed')
 
 setKeyListener()
-toggleWelcomeDialog()
 
 for (let zone of window.tzList) {
   $('#tz-timezone-list').appendChild(
